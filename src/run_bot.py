@@ -1,6 +1,6 @@
 import logging
 from telegram.ext import Updater
-from handler import SmallHandler, JokeHandler
+from handlers import SmallHandler, JokeHandler
 from configparser import ConfigParser
 
 
