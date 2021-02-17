@@ -18,8 +18,8 @@ def get_own_id():
 if __name__ == '__main__':
     token = get_token()
     own_id =get_own_id()
-    keywords = ['/logfile', '/test']
-    keywords_other = ['/wallis']
+    keywords = ['/logfile', '/test', '/planckraum']
+    keywords_other = ['/wallis', '/dave']
 
     logging.basicConfig(filename='logfile.txt', filemode='w',
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -35,6 +35,7 @@ if __name__ == '__main__':
     small_handlers.mensamenu_pdf()
     small_handlers.logfile_sender()
     small_handlers.respond_ganster()
+    small_handlers.planck_command()
 
     # jokes with menu function
     # dispatcher.add_handler(joke_start_handler)

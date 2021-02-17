@@ -1,10 +1,12 @@
-from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-import requests
-from configparser import ConfigParser
 from pathlib import Path
-from gizoogle import gizooglelize
 from random import choice
+from telegram import ParseMode
+
+import requests
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
+
+from gizoogle import gizooglelize
 
 
 class SmallHandler(Updater):
@@ -37,6 +39,7 @@ class SmallHandler(Updater):
         context.bot.send_document(chat_id=update.effective_chat.id, document=document,
                                   filename='hopefully_without_pilze.pdf', caption='Da häsch din Irchel Mensa Wucheplan',
                                   disable_notification=True)
+
     @staticmethod
     def read_pdf_from_url(url, name):
         filename = Path(name)
@@ -58,12 +61,24 @@ class SmallHandler(Updater):
 
     def respond_ganster(self):
         # responds gangsta style
-        gizoogle_handler = MessageHandler(filters=Filters.text, callback=self.echo_gangster)
+        gizoogle_handler = MessageHandler(filters=Filters.text & (~Filters.command), callback=self.echo_gangster)
         self.dispatcher.add_handler(gizoogle_handler)
 
     def echo_gangster(self, update, context):
         reply = gizooglelize(update.message.text)
         context.bot.send_message(chat_id=update.effective_chat.id, text=reply, disable_notification=True)
+
+    def planck_command(self):
+        # Belegungsplan handler
+        planck_handler = CommandHandler('planckraum', self.planckraum)
+        self.dispatcher.add_handler(planck_handler, group=2)
+
+    def planckraum(self, update, context):
+        print("Planckraum Belegungsplan")
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text="<a href='https://www.sharedequipment.uzh.ch/EZbooking/cgi-bin/ezb_timeCalendar."
+                                      "cgi?publicUserID=1&KeyNameID=EZbooking&isPopup=1&catID=14&objectID=480&calendar"
+                                      "Type=1048640&refreshRate=1'>Belegungsplans Planckraum Klick!</a>", parse_mode=ParseMode.HTML)
 
 
 class JokeHandler(Updater):
@@ -112,7 +127,8 @@ class JokeHandler(Updater):
         context.bot.send_message(chat_id=update.effective_chat.id, text=joke)
 
     def joke(self, update, context):
-        update.message.reply_text(self.main_menu_message(), reply_markup=self.main_menu_keyboard(), disable_notification=True)
+        update.message.reply_text(self.main_menu_message(), reply_markup=self.main_menu_keyboard(),
+                                  disable_notification=True)
 
     def main_menu(self, update, context):
         update.effective_message.edit_text(self.main_menu_message(), reply_markup=self.main_menu_keyboard())
@@ -157,3 +173,11 @@ class JokeHandler(Updater):
 
     def main_menu_message(self):
         return 'Wähle eine Witzkategorie aus:'
+
+
+class ScrapingHandler(Updater):
+    def __init__(self, updater, dispatcher, own_id, bot_token):
+        self.own_id = own_id
+        self.token = bot_token
+        self.updater = updater
+        self.dispatcher = dispatcher
